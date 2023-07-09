@@ -1,18 +1,17 @@
 <script setup>
   import NavItem from './NavItem.vue';
-  import {computed, reactive} from "vue";
-
-  const props = defineProps({
-    pages: Array,
-    current: Number
-  })
+  import {computed, inject, reactive} from "vue";
 
   const state = reactive({
-    theme: 'light'
+    theme: 'light',
+    pages: []
   })
 
+  const pages = inject('$pages');
+  const glbus = inject('$bus');
+
   const published = computed(() => {
-    return props.pages.filter(p => p.published);
+    return state.pages.filter(p => p.published);
   })
 
   function changeTheme() {
@@ -38,6 +37,20 @@
 
   function main() {
     getTheme();
+
+    state.pages = pages.getPages();
+
+    glbus.$on('page-created', () => {
+      state.pages = [...pages.getPages()];
+    });
+
+    glbus.$on('page-updated', () => {
+      state.pages = [...pages.getPages()];
+    });
+
+    glbus.$on('page-deleted', () => {
+      state.pages = [...pages.getPages()];
+    });
   }
 
   // Runs before created().
@@ -55,9 +68,19 @@
             v-for="(page, index) in published" class="nav-item" :key="index"
             :page="page"
             :index="index"
-            :active="current === index"
           >
           </NavItem>
+
+        <li>
+          <router-link
+              to="/pages"
+              class="nav-link"
+              active-class="active"
+              aria-current="page"
+          >
+            Pages
+          </router-link>
+        </li>
       </ul>
 
       <form class="d-flex">

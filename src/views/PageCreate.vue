@@ -1,11 +1,14 @@
 <script setup>
-import {computed, reactive, watch} from "vue";
+import {computed, inject, reactive, watch} from "vue";
 import {cloneDeep} from "lodash";
+import {useRouter} from "vue-router";
 
+  const router = useRouter();
   const emit = defineEmits([
-      'pageCreated'
+      'page-created'
   ]);
 
+  const pages = inject('$pages');
   const input = reactive({
     title: '',
     content: '',
@@ -22,20 +25,14 @@ import {cloneDeep} from "lodash";
     return !!input.title && !!input.content && !!input.link.text && !!input.link.url;
   }
 
-  function clearForm() {
-    input.title = '';
-    input.content = '';
-    input.link.text = '';
-    input.link.url = '';
-    input.published = false;
-  }
-
   function submitForm() {
     if (!isFormValid())
       return alert('Please fill in the form!');
 
-    emit('pageCreated', cloneDeep(input));
-    clearForm();
+    pages.addPage(input);
+
+    emit('page-created', cloneDeep(input));
+    router.push('/pages');
   }
 
   watch(() => cloneDeep(input), (value, oldValue) => {
@@ -98,11 +95,11 @@ import {cloneDeep} from "lodash";
             v-model="input.link.url"
           />
         </div>
-        <div class="row mb-3">
+        <div class="mb-3">
           <div class="form-check">
             <input class="form-check-input" type="checkbox" v-model="input.published">
             <label class="form-check-label" for="gridCheck1">
-              Published
+              Published (show on the navigation bar)
             </label>
           </div>
         </div>

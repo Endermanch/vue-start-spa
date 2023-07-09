@@ -6,12 +6,31 @@ const router = createRouter({
         {
             path: '/:index?',
             name: 'page',
-            component: () => import('./components/Page.vue')
+            component: () => import('./views/Page.vue'),
+            props: true,
         },
         {
-            path: '/create',
-            name: 'create',
-            component: () => import('./components/CreatePage.vue')
+            path: '/pages',
+            name: 'pages',
+            component: () => import('./views/Pages.vue'),
+            children: [
+                {
+                    path: '',
+                    name: 'pages.list',
+                    component: () => import('./views/PageList.vue'),
+                },
+                {
+                    path: 'create',
+                    name: 'pages.create',
+                    component: () => import('./views/PageCreate.vue'),
+                },
+                {
+                    path: ':index/edit',
+                    name: 'pages.edit',
+                    component: () => import('./views/PageEdit.vue'),
+                    props: true,
+                },
+            ]
         },
     ]
 });
